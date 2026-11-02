@@ -1,0 +1,383 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   DESIGN TOKENS
+   Warm "ember" theme: deep espresso-black surfaces lit by red, orange and
+   amber accents, with a restrained crimson/rose for depth and a small teal
+   for "live" status dots. Tailwind v4 `@theme` generates the matching
+   utilities (bg-void, text-chalk, font-display, ...).
+   =========================================================================== */
+@theme {
+  /* --- Surfaces (deep espresso-blacks, never pure black) --- */
+  --color-void: #080403;
+  --color-abyss: #0d0605;
+  --color-graphite: #150a08;
+  --color-slate-deep: #1f0f0b;
+  --color-slate-line: #35201a;
+
+  /* --- Text --- */
+  --color-chalk: #fdf0e7;
+  --color-mist: #d9b8a8;
+  --color-faint: #8a6a5a50;
+  --color-dim: #b39484;
+
+  /* --- Accents --- */
+  --color-ember: #ff3d24;
+  --color-ember-soft: #ff7d45;
+  --color-gold: #ffb020;
+  --color-wine: #c81e4a;
+  --color-mint: #34d399;
+
+  /* --- Semantic --- */
+  --color-danger: #f87171;
+
+  /* --- Type scale (fluid, clamped) --- */
+  --text-display: clamp(2.75rem, 1.1rem + 6.6vw, 6.25rem);
+  --text-display--line-height: 0.95;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-h2: clamp(2rem, 1.1rem + 3vw, 3.4rem);
+  --text-h2--line-height: 1.05;
+  --text-h2--letter-spacing: -0.028em;
+
+  --text-h3: clamp(1.35rem, 1rem + 1.3vw, 1.85rem);
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.018em;
+
+  --text-lead: clamp(1rem, 0.95rem + 0.25vw, 1.18rem);
+  --text-lead--line-height: 1.65;
+
+  /* --- Fonts --- */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-geist-sans), ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* --- Radii --- */
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  /* --- Motion --- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-drift: drift 9s ease-in-out infinite;
+  --animate-scroll-cue: scroll-cue 2.4s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.8s ease-out infinite;
+  --animate-spin-slow: spin 14s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -14px, 0);
+    }
+  }
+
+  @keyframes scroll-cue {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.9);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+}
+
+/* ===========================================================================
+   BASE
+   =========================================================================== */
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Accent channels reused by JS-driven components (cards, cursor glow) */
+    --accent-primary: #ff3d24;
+    --accent-secondary: #ffb020;
+  }
+
+  * {
+    border-color: var(--color-slate-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Next.js 16: opt back into smooth scrolling during route transitions. */
+  html[data-scroll-behavior="smooth"] {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* `clip` (not `hidden`) avoids creating a scroll container, which would
+       break the scroll-pinned Dolly Gallery. */
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Sections sit under a fixed navbar — give anchors room to breathe. */
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-ember) 55%, transparent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Slim, on-brand scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-void);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4a2116, #2f120c);
+    border-radius: 999px;
+    border: 2px solid var(--color-void);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #6d3018, #4a2116);
+  }
+}
+
+/* ===========================================================================
+   LAYOUT HELPERS
+   =========================================================================== */
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Glassmorphism — used sparingly, on nav / panels / hover states. */
+  .glass {
+    background: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.015)
+    );
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-strong {
+    background: linear-gradient(
+      160deg,
+      rgba(28, 14, 10, 0.86),
+      rgba(12, 6, 5, 0.82)
+    );
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+
+  /* Hairline card border with a soft inner top highlight. */
+  .panel {
+    position: relative;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+  }
+
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      120% 60% at 50% 0%,
+      rgba(255, 255, 255, 0.06),
+      transparent 60%
+    );
+  }
+
+  /* Gradient headline used for key words. */
+  .text-gradient {
+    background: linear-gradient(100deg, #fdf0e7 0%, #ffb27a 45%, #ffb020 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(100deg, #ff3d24 0%, #ff7d45 48%, #ffb020 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Monospace eyebrow label: "— 01 / ABOUT" */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-mist);
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-ember-soft));
+  }
+
+  /* Fine engineering grid used behind sections. */
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Soft radial glow, used as an ambient light behind headings/3D. */
+  .glow-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  /* Tech marquee row. */
+  .marquee-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+  }
+
+  /* Underline that grows on hover — used by text links. */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 1px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: right;
+    background: linear-gradient(90deg, var(--color-ember-soft), var(--color-gold));
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Skip link — hidden until focused. */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    transform: translate(-50%, -180%);
+    z-index: 200;
+    transition: transform 0.3s var(--ease-out-expo);
+  }
+  .skip-link:focus-visible {
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ===========================================================================
+   MOTION PREFERENCES
+   Respect the OS setting: kill ambient loops + shorten transitions.
+   Framer Motion components read the same query via useReducedMotion().
+   =========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
